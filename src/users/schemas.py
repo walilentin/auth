@@ -19,3 +19,7 @@ class UserSchemas(BaseModel):
     email: EmailStr | None = None
     active: bool = True
 
+
+class Token_info(BaseModel):
+    access_token: str
+    token_type: str

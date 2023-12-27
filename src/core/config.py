@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 
 import os
 
-
-
 BASE_DIR = Path(__file__).parent.parent
 
 load_dotenv()
@@ -32,7 +30,6 @@ class AuthJWT(BaseModel):
 
 class Settings(BaseSettings):
     api_v1_prefix: str = '/api/v1'
-
 
     auth_jwt: AuthJWT = AuthJWT()
 

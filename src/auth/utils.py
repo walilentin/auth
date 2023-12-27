@@ -7,7 +7,6 @@ from src.core.config import settings
 
 
 def encode_jwt(
-        id: int,
         username: str,
         email: str,
         private_key: str = settings.auth_jwt.private_key_path.read_text(),
@@ -15,7 +14,6 @@ def encode_jwt(
         exp_minutes: int = settings.auth_jwt.access_token_exp_minutes
 ):
     jwt_payload = {
-        'sub': id,
         'username': username,
         'email': email
     }

@@ -11,3 +11,5 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=True)
     password = Column(LargeBinary)
     active = Column(Boolean, default=True)
+
+
