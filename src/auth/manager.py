@@ -1,3 +1,5 @@
+from typing import List, Callable
+
 from fastapi import Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
@@ -8,6 +10,8 @@ from src.auth import utils
 from src.core.database import get_async_session
 from src.users.models import User
 from jwt import InvalidTokenError
+
+from src.users.schemas import UserSchemas
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login/",
@@ -61,8 +65,8 @@ async def create_access_token(
     return payload
 
 
-async def current_user(token: str = Depends(create_access_token),
-                       db: AsyncSession = Depends(get_async_session)):
+async def get_current_user(token: str = Depends(create_access_token),
+                           db: AsyncSession = Depends(get_async_session)):
     username: str = token.get("username")
     statement = select(User).filter(User.username == username)
     result = await db.execute(statement)
@@ -75,3 +79,20 @@ async def current_user(token: str = Depends(create_access_token),
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token invalid (user not found)",
         )
+
+
+def has_role(allowed_roles: List[str] = Depends()) -> Callable[[UserSchemas], UserSchemas]:
+    def check_role(user: UserSchemas = Depends(get_current_user)):
+        if not any(role in user.roles for role in allowed_roles):
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+        return user
+
+    return check_role
+
+
+def current(user: UserSchemas = Depends(has_role(["user"]))):
+    return user
+
+
+def current_admin(user: UserSchemas = Depends(has_role(["admin"]))):
+    return user
